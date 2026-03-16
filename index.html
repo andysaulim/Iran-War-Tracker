@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Epic Fury — Cost Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#003765;--navy-d:#002147;--navy-b:#0056A3;
+  --gold:#F5A800;--gold-lt:#FEF3D0;--gold-d:#C88A00;
+  --red:#C8102E;--red-lt:#FDECEA;
+  --teal:#007B8A;--teal-lt:#E0F2F4;
+  --green:#1A7A4A;--green-lt:#E8F5EE;
+  --bg:#F4F5F7;--surface:#FFF;--surface2:#EEF0F4;
+  --text:#1A1E2A;--mid:#3D4355;--muted:#6B7280;
+  --rule:rgba(0,55,101,0.09);--rule-s:rgba(0,55,101,0.17);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-weight:300;font-size:14px;line-height:1.6}
+
+/* MASTHEAD */
+.mast{background:var(--navy-d);height:52px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.mast-l{display:flex;align-items:center;gap:12px}
+.csis-mark{width:32px;height:32px;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:10px;color:var(--navy-d);flex-shrink:0}
+.mast-name{font-weight:500;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+.mast-nav{display:flex;margin-left:24px}
+.mast-nav a{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.35);text-decoration:none;padding:0 12px;height:52px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s}
+.mast-nav a:hover{color:rgba(255,255,255,.72);border-bottom-color:rgba(245,168,0,.45)}
+.mast-r{display:flex;align-items:center;gap:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3)}
+.live-pill{display:flex;align-items:center;gap:5px;background:rgba(200,16,46,.13);border:1px solid rgba(200,16,46,.3);border-radius:3px;padding:2px 8px;color:#ff7080;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--red);animation:blink 1.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.12}}
+
+/* HERO */
+.hero{background:var(--navy);padding:44px 32px 40px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:0;right:0;width:400px;height:100%;background:linear-gradient(135deg,transparent 40%,rgba(245,168,0,.05));pointer-events:none}
+.hero-inner{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start}
+.kicker{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.hero-title{font-family:'Libre Baskerville',serif;font-size:clamp(22px,3vw,36px);font-weight:700;line-height:1.13;color:#fff;margin-bottom:10px}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:13px;font-weight:300;color:rgba(255,255,255,.45);max-width:560px;line-height:1.75;margin-bottom:14px}
+.hero-authors{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.04em}
+.hero-authors a{color:var(--gold);opacity:.7;text-decoration:none}
+.hero-authors a:hover{opacity:1}
+
+/* DATA STATUS PANEL */
+.status-panel{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:18px 22px;min-width:240px}
+.status-title{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:12px}
+.status-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.status-row:last-child{border-bottom:none;padding-bottom:0}
+.status-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.38)}
+.status-val{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500}
+.status-val.confirmed{color:#6FD98F}
+.status-val.estimated{color:var(--gold)}
+.status-val.unknown{color:rgba(255,255,255,.28)}
+.next-update{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.28);letter-spacing:.04em}
+.next-update span{color:var(--gold);opacity:.7}
+
+/* LAYOUT */
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px 100px}
+.sec{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--navy);padding:30px 0 13px;border-bottom:2px solid var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.sec small{color:var(--muted);font-weight:400;font-size:9px;letter-spacing:.08em;text-transform:none}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule-s);border:1px solid var(--rule-s);border-radius:4px;overflow:hidden;margin-bottom:24px}
+.stat{background:var(--surface);padding:20px 18px 16px}
+.stat.hi{background:var(--navy)}
+.sk{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.stat.hi .sk{color:rgba(255,255,255,.4)}
+.sv{font-family:'Libre Baskerville',serif;font-size:26px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px}
+.stat.hi .sv{color:var(--gold)}
+.ss{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);line-height:1.4}
+.stat.hi .ss{color:rgba(255,255,255,.28)}
+.stat-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-radius:2px;margin-top:5px}
+.tag-confirmed{background:var(--green-lt);color:var(--green)}
+.tag-estimated{background:var(--gold-lt);color:var(--gold-d)}
+.tag-partial{background:var(--teal-lt);color:var(--teal)}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--rule-s);border-radius:4px;padding:24px 22px 20px;margin-bottom:20px}
+.ct{font-family:'Libre Baskerville',serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.cn{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+
+/* TWO / THREE COL */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+.two .card{margin-bottom:0}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.three .card{margin-bottom:0}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;position:relative;margin-bottom:8px}
+.timeline::before{content:'';position:absolute;left:116px;top:0;bottom:0;width:2px;background:var(--rule-s)}
+.tl-row{display:grid;grid-template-columns:108px 1fr;gap:16px;align-items:start;padding:0 0 24px}
+.tl-row:last-child{padding-bottom:0}
+.tl-left{text-align:right;padding-top:3px;position:relative}
+.tl-left::after{content:'';position:absolute;right:-22px;top:8px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--rule-s);z-index:1}
+.tl-row.confirmed .tl-left::after{background:var(--navy);border-color:var(--navy)}
+.tl-row.estimated .tl-left::after{background:var(--gold);border-color:var(--gold-d)}
+.tl-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:block;margin-bottom:2px}
+.tl-day{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--navy)}
+.tl-content{padding-left:10px}
+.tl-headline{font-family:'Libre Baskerville',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+.tl-val{font-family:'Libre Baskerville',serif;font-size:20px;font-weight:700;line-height:1;margin-bottom:4px}
+.tl-val.confirmed{color:var(--navy)}
+.tl-val.estimated{color:var(--gold-d)}
+.tl-desc{font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:5px}
+.tl-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:2px}
+.tl-badge.confirmed{background:var(--green-lt);color:var(--green)}
+.tl-badge.estimated{background:var(--gold-lt);color:var(--gold-d)}
+.tl-badge.partial{background:var(--teal-lt);color:var(--teal)}
+
+/* RANGE BAR */
+.range-wrap{margin-bottom:12px}
+.range-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.range-name{font-size:12px;color:var(--text)}
+.range-nums{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.range-track{height:10px;background:var(--surface2);border-radius:3px;position:relative;overflow:hidden}
+.range-fill{height:100%;border-radius:3px;position:absolute}
+.range-point{position:absolute;top:-3px;width:2px;height:16px;background:var(--navy);opacity:.5}
+.range-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:2px solid var(--rule-s);margin-bottom:20px;flex-wrap:wrap}
+.tab{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:10px 14px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none}
+.tab:hover{color:var(--navy)}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* TABLES */
+.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 12px 10px 0;border-bottom:1px solid var(--rule-s)}
+.t th.r{text-align:right;padding-right:0}
+.t td{padding:10px 12px 10px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.t td.r{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;padding-right:0}
+.t tr.total td{border-bottom:none;border-top:1px solid var(--rule-s);padding-top:12px;font-weight:500}
+.sub{font-size:11px;color:var(--muted);margin-top:2px;font-weight:300}
+.vn{color:var(--navy)}.vg{color:var(--gold-d)}.vr{color:var(--red)}.vt{color:var(--teal)}
+
+/* DATA LOG TABLE */
+.log-wrap{background:var(--surface);border:1px solid var(--rule-s);border-radius:4px;overflow-x:auto;margin-bottom:20px}
+.lt{width:100%;border-collapse:collapse;min-width:600px}
+.lt thead th{background:var(--navy);color:rgba(255,255,255,.55);font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:11px 13px;text-align:left;border-right:1px solid rgba(255,255,255,.06)}
+.lt thead th:last-child{border-right:none}
+.lt thead th.r{text-align:right}
+.lt tbody tr{border-bottom:1px solid var(--rule);transition:background .1s}
+.lt tbody tr:last-child{border-bottom:none}
+.lt tbody tr:hover{background:var(--surface2)}
+.lt tbody tr.confirmed-row{background:#FAFFF9}
+.lt tbody tr.confirmed-row:hover{background:var(--green-lt)}
+.lt td{padding:10px 13px;font-size:13px;border-right:1px solid var(--rule);vertical-align:top}
+.lt td:last-child{border-right:none}
+.lt td.r{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500}
+.lt td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.lt td.note{font-size:11px;color:var(--mid);line-height:1.5}
+
+.src-badge{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:2px}
+.src-confirmed{background:var(--green-lt);color:var(--green);border:1px solid rgba(26,122,74,.2)}
+.src-estimated{background:var(--gold-lt);color:var(--gold-d);border:1px solid rgba(245,168,0,.25)}
+.src-partial{background:var(--teal-lt);color:var(--teal);border:1px solid rgba(0,123,138,.2)}
+.unknown-row td{color:var(--muted);font-style:italic}
+
+/* UNCERTAINTY CALLOUT */
+.uncertainty{background:var(--red-lt);border:1px solid rgba(200,16,46,.15);border-left:3px solid var(--red);border-radius:0 4px 4px 0;padding:14px 16px;margin-bottom:16px;font-size:13px;line-height:1.65}
+.uncertainty strong{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:4px}
+
+/* STRIPS */
+.strip{border-left:3px solid var(--gold);background:var(--gold-lt);padding:12px 15px;margin-bottom:10px;border-radius:0 3px 3px 0;font-size:13px;line-height:1.65}
+.strip strong{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-d);display:block;margin-bottom:3px}
+.strip.nv{border-color:var(--navy);background:rgba(0,55,101,.05)}
+.strip.nv strong{color:var(--navy)}
+.strip.rd{border-color:var(--red);background:var(--red-lt)}
+.strip.rd strong{color:var(--red)}
+.strip.tl{border-color:var(--teal);background:var(--teal-lt)}
+.strip.tl strong{color:var(--teal)}
+.strip.gn{border-color:var(--green);background:var(--green-lt)}
+.strip.gn strong{color:var(--green)}
+
+/* PROJECTION TOOL */
+.proj-tool{background:var(--navy);border-radius:4px;padding:26px 26px 22px;margin-bottom:20px}
+.proj-title{font-family:'Libre Baskerville',serif;font-size:15px;font-weight:700;color:#fff;margin-bottom:3px}
+.proj-note{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);margin-bottom:20px}
+.proj-controls{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:22px;align-items:flex-end}
+.proj-fg{display:flex;flex-direction:column;gap:5px}
+.proj-fg label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38)}
+.proj-fg input[type=range]{width:180px;accent-color:var(--gold)}
+.proj-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--gold)}
+.proj-results{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.proj-res{background:rgba(0,0,0,.18);padding:16px}
+.proj-res-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:6px}
+.proj-res-val{font-family:'Libre Baskerville',serif;font-size:22px;font-weight:700;color:var(--gold);line-height:1}
+.proj-res-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.28);margin-top:4px}
+.proj-caveat{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.25);margin-top:14px;line-height:1.6;border-top:1px solid rgba(255,255,255,.07);padding-top:12px}
+
+/* COMPARATOR */
+.comp-row{margin-bottom:16px}
+.comp-row:last-child{margin-bottom:0}
+.comp-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px}
+.comp-name{font-size:13px;font-weight:400}
+.comp-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--navy);white-space:nowrap}
+.comp-track{height:8px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.comp-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.16,1,.3,1);width:0}
+
+/* MUNS GRID */
+.mun-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule-s);border:1px solid var(--rule-s);border-radius:4px;overflow:hidden;margin-bottom:20px}
+.mun{background:var(--surface);padding:16px 14px}
+.mun:hover{background:var(--surface2)}
+.mun-name{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:var(--navy);margin-bottom:5px;text-transform:uppercase;letter-spacing:.07em}
+.mun-qty{font-family:'Libre Baskerville',serif;font-size:19px;font-weight:700;color:var(--text);margin-bottom:2px}
+.mun-cost{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:5px}
+.mun-note{font-size:11px;color:var(--mid);line-height:1.45}
+.risk-chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-top:6px}
+.risk-low{background:var(--green-lt);color:var(--green)}
+.risk-med{background:var(--gold-lt);color:var(--gold-d)}
+.risk-hi{background:rgba(200,16,46,.08);color:var(--red)}
+.risk-crit{background:rgba(200,16,46,.14);color:var(--red);font-weight:600}
+
+/* ADMIN */
+.admin-toggle{background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--rule-s);cursor:pointer;letter-spacing:.06em;text-transform:uppercase;padding:4px 0;transition:color .2s;display:block;margin-left:auto}
+.admin-toggle:hover{color:var(--muted)}
+.form-wrap{background:var(--teal-lt);border:1px solid rgba(0,123,138,.22);border-radius:4px;padding:18px 20px;margin-top:10px}
+.form-ttl{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+.form-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{background:var(--surface);border:1px solid var(--rule-s);border-radius:3px;padding:7px 9px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text);outline:none;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--teal)}
+.fg input{width:110px}.fg.wide input,.fg.wide textarea{width:220px}.fg select{width:130px}
+.fg textarea{width:280px;height:56px;resize:vertical;font-size:11px}
+.btn-add{background:var(--navy);color:#fff;border:none;border-radius:3px;padding:8px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .15s;margin-bottom:1px}
+.btn-add:hover{background:var(--navy-d)}
+.btn-sec{background:transparent;color:var(--muted);border:1px solid var(--rule-s);border-radius:3px;padding:7px 11px;font-size:11px;cursor:pointer;transition:all .15s;margin-bottom:1px}
+.btn-sec:hover{border-color:var(--red);color:var(--red)}
+
+/* SCENARIO CARDS */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.scenario{background:var(--surface);border:1px solid var(--rule-s);border-radius:4px;padding:18px}
+.scenario-num{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.scenario-title{font-family:'Libre Baskerville',serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.scenario-desc{font-size:12px;color:var(--mid);line-height:1.55;margin-bottom:10px}
+.s-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:2px}
+.s-likely{background:rgba(0,55,101,.08);color:var(--navy);border:1px solid rgba(0,55,101,.18)}
+.s-poss{background:var(--gold-lt);color:var(--gold-d);border:1px solid rgba(245,168,0,.25)}
+.s-unlik{background:var(--surface2);color:var(--muted);border:1px solid var(--rule-s)}
+
+/* FOOTER */
+footer{background:var(--navy-d);padding:20px 32px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.27);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+footer a{color:var(--gold);text-decoration:none;opacity:.7}
+footer a:hover{opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  .mast,.wrap{padding-left:16px;padding-right:16px}
+  .hero{padding:30px 16px 26px}
+  .hero-inner{grid-template-columns:1fr;gap:20px}
+  .status-panel{min-width:0}
+  .mast-nav{display:none}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .two,.scenario-grid,.three{grid-template-columns:1fr 1fr}
+  .proj-results{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  body{font-size:13px}
+  .hero-title{font-size:22px}
+  .stat-grid,.two,.scenario-grid,.three,.proj-results{grid-template-columns:1fr}
+  .sv{font-size:22px}
+  .mun-grid{grid-template-columns:1fr 1fr}
+  .proj-controls{flex-direction:column}
+  .proj-fg input[type=range]{width:100%}
+  .tabs{gap:0}
+  .tab{font-size:9px;padding:8px 8px}
+  .form-row{flex-direction:column}
+  .fg input,.fg.wide input,.fg.wide textarea,.fg select,.fg textarea{width:100%}
+  .status-panel{display:none}
+  footer{flex-direction:column;align-items:flex-start;padding:16px}
+  .wrap{padding:0 12px 60px}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="mast-l">
+    <div class="csis-mark">CSIS</div>
+    <span class="mast-name">Operation Epic Fury · Cost Tracker</span>
+    <nav class="mast-nav">
+      <a href="#s-anchors">Cost Anchors</a>
+      <a href="#s-breakdown">Breakdown</a>
+      <a href="#s-munitions">Munitions</a>
+      <a href="#s-charts">Charts</a>
+      <a href="#s-projection">Projection</a>
+      <a href="#s-context">Context</a>
+    </nav>
+  </div>
+  <div class="mast-r">
+    <div class="live-pill"><span class="dot"></span>Live</div>
+    <span id="live-date"></span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="kicker">U.S. War Cost Tracker · Operation Epic Fury</div>
+      <h1 class="hero-title" style="font-size:clamp(32px,5vw,58px);line-height:1.05;margin-bottom:6px">Operation<br>Epic Fury</h1>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.07em;text-transform:uppercase;margin-bottom:22px">U.S. Military Campaign Against Iran · Began Mar 4, 2026</div>
+      <div style="margin-bottom:20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Latest CSIS Cost Estimate</div>
+        <div style="font-family:'Libre Baskerville',serif;font-size:clamp(44px,7vw,76px);font-weight:700;color:var(--gold);line-height:1;letter-spacing:-.02em" id="hero-running-total">$16.5B</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.65" id="hero-extrap-detail">Through Day 12 (Mar 15, 2026) · CSIS estimate</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.22);margin-top:3px">Unbudgeted costs only · excludes pre-war military buildup</div>
+      </div>
+      <p class="hero-sub">This tracker shows only what has been confirmed or formally estimated by CSIS. Day-by-day breakdowns are not publicly available. All figures are unbudgeted costs; pre-war military buildup is excluded.</p>
+      <div class="hero-authors">Analysis: <a href="https://www.csis.org/people/mark-f-cancian" target="_blank">Mark F. Cancian</a> &amp; <a href="https://www.csis.org/people/chris-h-park" target="_blank">Chris H. Park</a> · CSIS · Mar 5 &amp; Mar 13, 2026 · Dashboard built with <a href="https://claude.ai" target="_blank">Claude</a></div>
+    </div>
+    <div class="status-panel">
+      <div class="status-title">Data Status</div>
+      <div class="status-row">
+        <span class="status-label">D+6 cumulative</span>
+        <span class="status-val confirmed">Confirmed</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">D+12 cumulative</span>
+        <span class="status-val estimated">CSIS est.</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">H+100 breakdown</span>
+        <span class="status-val estimated">CSIS est.</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Daily breakdown</span>
+        <span class="status-val unknown">Not released</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">D+13 onward</span>
+        <span class="status-val unknown">Not yet reported</span>
+      </div>
+      <div class="next-update">
+        Last updated: <span id="last-updated-val">Mar 13, 2026</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- WHAT WE KNOW -->
+  <div class="uncertainty" style="margin-top:24px">
+    <strong>Important caveat on data availability</strong>
+    The Pentagon has not released a day-by-day cost breakdown. The confirmed figures are cumulative totals reported at specific points: $11.3B through Day 6 (Pentagon to Congress, reported by NYT Mar 11) and $16.5B through Day 12 (CSIS estimate, published Mar 13). The H+100 figure of $3.7B is a CSIS estimate published Mar 5 — it was later superseded by the higher Pentagon figure, confirming munitions usage was heavier than CSIS initially modeled. No daily rate or breakdown for D+7 through D+12 has been publicly confirmed.
+  </div>
+
+  <!-- STAT GRID -->
+  <div class="stat-grid">
+    <div class="stat hi">
+      <div class="sk">D+6 Cumulative</div>
+      <div class="sv">$11.3B</div>
+      <div class="ss">Pentagon to Congress · Mar 11, 2026<br>Unbudgeted costs only</div>
+      <div><span class="stat-tag tag-confirmed">Confirmed</span></div>
+    </div>
+    <div class="stat">
+      <div class="sk">D+12 Cumulative</div>
+      <div class="sv">$16.5B</div>
+      <div class="ss">CSIS revised estimate · Mar 13, 2026</div>
+      <div><span class="stat-tag tag-estimated">CSIS Estimate</span></div>
+    </div>
+    <div class="stat">
+      <div class="sk">H+100 Total</div>
+      <div class="sv">$3.7B</div>
+      <div class="ss">CSIS estimate · Mar 5, 2026<br>Superseded by D+6 Pentagon figure</div>
+      <div><span class="stat-tag tag-estimated">CSIS Estimate</span></div>
+    </div>
+    <div class="stat">
+      <div class="sk">D+2 Munitions Only</div>
+      <div class="sv">$5.6B</div>
+      <div class="ss">Reuters · munitions replacement cost only — not total war cost</div>
+      <div><span class="stat-tag tag-partial">Partial · Munitions Only</span></div>
+    </div>
+  </div>
+
+  <!-- COST ANCHORS TIMELINE -->
+  <div class="sec" id="s-anchors">Cost Anchors <small>— only confirmed and formally estimated totals</small></div>
+
+  <div class="card">
+    <div class="ct">What We Know — Confirmed & Estimated Totals</div>
+    <div class="cn">No day-by-day breakdown exists publicly. This timeline shows only data points that have been confirmed by the Pentagon or formally estimated by CSIS. The bar in each row represents the share of the D+12 estimate.</div>
+
+    <div class="timeline">
+      <div class="tl-row estimated">
+        <div class="tl-left">
+          <span class="tl-date">Mar 5, 2026</span>
+          <span class="tl-day">H+100</span>
+        </div>
+        <div class="tl-content">
+          <div class="tl-headline">CSIS estimates first 100 hours cost $3.7B</div>
+          <div class="tl-val estimated">$3.7B</div>
+          <div class="tl-desc">CSIS published its first estimate using CBO cost data for participating units, plus munitions replenishment and attrition estimates. The implied daily rate is $891.4M/day. Of the $3.7B, approximately $3.5B is unbudgeted — $196M in operations and support is mostly budgeted. CSIS noted at publication that "the cost will be highly sensitive to the actual number and mix of munitions expended" and that it awaited further details from DOD.</div>
+          <span class="tl-badge estimated">CSIS Estimate</span>
+        </div>
+      </div>
+
+      <div class="tl-row partial">
+        <div class="tl-left">
+          <span class="tl-date">Mar 10, 2026</span>
+          <span class="tl-day">D+2 partial</span>
+        </div>
+        <div class="tl-content">
+          <div class="tl-headline">Reuters: $5.6B in munitions costs through D+2</div>
+          <div class="tl-val" style="color:var(--teal)">$5.6B</div>
+          <div class="tl-desc">Reuters reported that the Trump administration estimated munitions expenditures in the first few days cost $5.6 billion. This figure covers munitions replacement costs only — it is not a total war cost figure and is not comparable to the CSIS H+100 or Pentagon D+6 totals. CSIS notes the Pentagon's $11.3B is "broadly consistent" with this figure.</div>
+          <span class="tl-badge partial">Munitions Only · Not Total Cost</span>
+        </div>
+      </div>
+
+      <div class="tl-row confirmed">
+        <div class="tl-left">
+          <span class="tl-date">Mar 11, 2026</span>
+          <span class="tl-day">D+6</span>
+        </div>
+        <div class="tl-content">
+          <div class="tl-headline">Pentagon reports $11.3B cumulative to Congress</div>
+          <div class="tl-val confirmed">$11.3B</div>
+          <div class="tl-desc">The NYT reported that DOD informed Congress the first six days cost $11.3B. This exceeds CSIS's H+100 estimate, confirming heavier-than-expected munitions use. The figure explicitly excludes: (1) pre-war military buildup; (2) facility repair costs; (3) some equipment replacement costs. The White House had not publicly confirmed or cleared the figure. OMB methodology may differ.</div>
+          <span class="tl-badge confirmed">Pentagon Confirmed</span>
+        </div>
+      </div>
+
+      <div class="tl-row estimated">
+        <div class="tl-left">
+          <span class="tl-date">Mar 13, 2026</span>
+          <span class="tl-day">D+12</span>
+        </div>
+        <div class="tl-content">
+          <div class="tl-headline">CSIS revises estimate: $16.5B through Day 12</div>
+          <div class="tl-val estimated">$16.5B</div>
+          <div class="tl-desc">Using the Pentagon's $11.3B as an anchor, CSIS revised its methodology and estimated the campaign had cost $16.5B through Day 12. CSIS also revised the combat losses figure upward from $359M to ~$1.4B, incorporating the confirmed KC-135 loss, 11 MQ-9 Reapers, and a THAAD AN/TPY-2 radar, alongside additional base damage visible in overhead photography. Daily costs had "declined substantially" since the opening days.</div>
+          <span class="tl-badge estimated">CSIS Estimate</span>
+        </div>
+      </div>
+
+      <div class="tl-row" style="opacity:.45">
+        <div class="tl-left">
+          <span class="tl-date">D+13 onward</span>
+          <span class="tl-day">—</span>
+        </div>
+        <div class="tl-content">
+          <div class="tl-headline" style="color:var(--muted)">No data reported as of Mar 16, 2026</div>
+          <div class="tl-desc" style="font-style:italic">New CSIS updates or Pentagon reporting will appear here when published. Use the projection tool below to model scenarios.</div>
+          <span class="tl-badge" style="background:var(--surface2);color:var(--muted);border:1px solid var(--rule-s)">Awaiting Data</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN LOG -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:8px">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">
+      Tracker last updated: <strong id="last-updated-footer" style="color:var(--navy)">Mar 13, 2026</strong>
+      · Next expected update: <strong style="color:var(--navy)" id="next-update-footer">When CSIS or Pentagon releases new figures</strong>
+    </div>
+    <button class="admin-toggle" onclick="toggleAdmin()">⚙ Editor</button>
+  </div>
+
+  <div id="admin-panel" style="display:none;margin-bottom:20px">
+    <div id="auth-gate" style="background:var(--navy-d);border-radius:4px;padding:18px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4)">Passphrase</span>
+      <input type="password" id="auth-input" placeholder="enter passphrase" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:3px;padding:7px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#fff;outline:none;width:190px" onkeydown="if(event.key==='Enter')checkAuth()">
+      <button onclick="checkAuth()" style="background:var(--gold);color:var(--navy-d);border:none;border-radius:3px;padding:7px 14px;font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer">Unlock</button>
+      <span id="auth-err" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--red);display:none">Incorrect.</span>
+    </div>
+    <div id="editor" style="display:none">
+      <div class="form-wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="form-ttl" style="margin-bottom:0">Add New Cost Anchor</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="exportCSV()" style="background:transparent;border:1px solid rgba(0,123,138,.3);border-radius:3px;padding:4px 9px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--teal);cursor:pointer">↓ Export CSV</button>
+            <button onclick="lockAdmin()" class="btn-sec">Lock</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Label (e.g. D+18)</label><input type="text" id="f-label" placeholder="D+18"></div>
+          <div class="fg"><label>Date</label><input type="text" id="f-date" placeholder="Mar 21, 2026"></div>
+          <div class="fg"><label>Cumulative ($B)</label><input type="number" id="f-cost" placeholder="19.2" step="0.1"></div>
+          <div class="fg">
+            <label>Type</label>
+            <select id="f-type">
+              <option value="confirmed">Confirmed (Pentagon/official)</option>
+              <option value="estimated">CSIS Estimate</option>
+              <option value="partial">Partial (e.g. munitions only)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Source</label><input type="text" id="f-src" placeholder="e.g. NYT, CSIS Mar 20"></div>
+          <div class="fg wide"><label>Notes</label><textarea id="f-note" placeholder="What does this figure include/exclude?"></textarea></div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1px">
+            <button class="btn-add" onclick="addAnchor()">Add Anchor</button>
+            <button class="btn-sec" onclick="resetAnchors()">Reset</button>
+          </div>
+        </div>
+        <div style="margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--teal)">Updates "last updated" timestamp and saves to localStorage.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREAKDOWN TABS -->
+  <div class="sec" id="s-breakdown">Cost Breakdown <small>— CSIS estimates only; all figures carry uncertainty</small></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">H+100 Components</button>
+    <button class="tab" onclick="switchTab(1)">D+6 Apportionment</button>
+    <button class="tab" onclick="switchTab(2)">Equipment &amp; Losses</button>
+  </div>
+
+  <!-- TAB 0 -->
+  <div class="tab-panel active" id="tp0">
+    <div class="uncertainty">
+      <strong>All figures below are CSIS estimates — not Pentagon-confirmed</strong>
+      CSIS explicitly notes that "the cost will be highly sensitive to the actual number and mix of munitions expended" and that it "awaits further details from the DOD." Air defense costs alone carry a range of $1.2B–$3.7B. These are the best public estimates available; they are not official DOD figures.
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="ct">Operations &amp; Support — H+100</div>
+        <div class="cn">$196M total · $178M already budgeted · only $18M unbudgeted · CSIS methodology based on CBO unit cost data</div>
+        <table class="t">
+          <thead><tr><th>Component</th><th class="r">H+100</th><th class="r">+Per Day</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>
+                <div>Air operations</div>
+                <div class="sub">~50 stealth (F-35/F-22) · 110 non-stealth (F-15/F-16/A-10) · 80 carrier-based (F/A-18E/F, F-35C) · 200+ fighters total per Adm. Cooper</div>
+              </td>
+              <td class="r vn">$125.2M</td><td class="r">+$30M</td>
+            </tr>
+            <tr>
+              <td>
+                <div>Naval operations</div>
+                <div class="sub">2 carriers · 14 destroyers · 3 LCSs · Arabian Sea, Persian Gulf, E. Mediterranean</div>
+              </td>
+              <td class="r vn">$64.5M</td><td class="r">+$15.4M</td>
+            </tr>
+            <tr>
+              <td>
+                <div>Ground operations</div>
+                <div class="sub">HIMARS · THAAD · Patriot · 582 permanently stationed + rotational · NG battalion activated</div>
+              </td>
+              <td class="r vn">$7.0M</td><td class="r">+$1.6M</td>
+            </tr>
+            <tr class="total">
+              <td><strong>Total O&amp;S</strong><div class="sub">$178M budgeted · $18M unbudgeted</div></td>
+              <td class="r vn"><strong>$196M</strong></td><td class="r">+$47M</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="ct">Munitions &amp; Attrition — H+100</div>
+        <div class="cn">~$3.46B total · all unbudgeted · +$758M/day munitions rate</div>
+
+        <div class="range-wrap">
+          <div class="range-label">
+            <span class="range-name">Offensive strike munitions</span>
+            <span class="range-nums">~$1.5B</span>
+          </div>
+          <div class="range-track">
+            <div class="range-fill" style="left:0;width:40.5%;background:var(--navy);opacity:.8"></div>
+          </div>
+          <div class="range-sub">Based on ~2,600 munitions (1.3:1 target ratio per Odyssey Dawn). Tomahawk ($3.6M) · JDAM ($80K) · JASSM-ER ($1.1M) · ATACMS · PrSM · LUCAS</div>
+        </div>
+
+        <div class="range-wrap">
+          <div class="range-label">
+            <span class="range-name">Air defense interceptors</span>
+            <span class="range-nums" style="color:var(--red)">$1.2B – $3.7B</span>
+          </div>
+          <div class="range-track">
+            <div class="range-fill" style="left:32.5%;width:67.5%;background:rgba(200,16,46,.15)"></div>
+            <div class="range-fill" style="left:32.5%;width:13.5%;background:rgba(200,16,46,.4)"></div>
+            <div class="range-point" style="left:46%;"></div>
+          </div>
+          <div class="range-sub" style="color:var(--red);opacity:.8">Wide range reflects deep uncertainty. CSIS used midpoint (~$1.7B). Iran launched 500 BMs + 2,000 drones by D+4. Gulf allies absorbed ~500 missiles + ~1,300 drones by D+3, significantly reducing U.S. burden.</div>
+        </div>
+
+        <div class="range-wrap">
+          <div class="range-label">
+            <span class="range-name">Combat losses &amp; damage <span style="font-size:10px;color:var(--muted)">(H+100 estimate)</span></span>
+            <span class="range-nums">~$359M</span>
+          </div>
+          <div class="range-track">
+            <div class="range-fill" style="left:0;width:9.7%;background:var(--gold);opacity:.7"></div>
+          </div>
+          <div class="range-sub">3× F-15EX ($103M ea.) = $309M · $50M base infrastructure damage. CSIS notes "could be significantly higher depending on what equipment was inside the facilities."</div>
+        </div>
+
+        <div style="border-top:1px solid var(--rule-s);padding-top:12px;margin-top:4px">
+          <div style="display:flex;justify-content:space-between;font-size:13px">
+            <span><strong>Total unbudgeted (H+100)</strong></span>
+            <span class="vn" style="font-family:'IBM Plex Mono',monospace;font-weight:500">~$3.46B</span>
+          </div>
+          <div class="sub">Of $3.7B total; $178M O&amp;S was already budgeted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="tab-panel" id="tp1">
+    <div class="uncertainty">
+      <strong>CSIS apportionment — not directly confirmed by Pentagon</strong>
+      The Pentagon told Congress the D+6 total was $11.3B but provided no breakdown. CSIS estimated how the $11.3B is likely apportioned using its existing methodology. These are estimates, not confirmed figures.
+    </div>
+    <div class="two">
+      <div class="card">
+        <div class="ct">Estimated D+6 Breakdown</div>
+        <div class="cn">CSIS apportionment of the $11.3B Pentagon figure · Mar 13, 2026</div>
+        <table class="t">
+          <thead><tr><th>Category</th><th class="r">Amount</th><th class="r">Share</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>
+                <div>Munitions replacement</div>
+                <div class="sub">Offensive strikes + air defense interceptors · single largest driver · highly sensitive to actual mix</div>
+              </td>
+              <td class="r vn">~$9.9B</td><td class="r">87.6%</td>
+            </tr>
+            <tr>
+              <td>
+                <div>Combat losses &amp; infrastructure</div>
+                <div class="sub">3× F-15EX · 1× KC-135 · 11× MQ-9 Reapers · 1× THAAD AN/TPY-2 radar · base damage in Bahrain, Kuwait, Qatar · satellite comms ("golf balls") are primary cost driver</div>
+              </td>
+              <td class="r vg">~$1.4B</td><td class="r">12.4%</td>
+            </tr>
+            <tr>
+              <td>
+                <div>Operations &amp; support (unbudgeted increment only)</div>
+              </td>
+              <td class="r">~$0.02B</td><td class="r">&lt;0.2%</td>
+            </tr>
+            <tr class="total">
+              <td>
+                <strong>Total (as reported)</strong>
+                <div class="sub">Excludes: pre-war buildup · facility repair · some replacement costs · not White House-cleared</div>
+              </td>
+              <td class="r vn"><strong>$11.3B</strong></td><td class="r"><strong>100%</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <div class="strip nv">
+          <strong>Why D+6 exceeds H+100</strong>
+          The $11.3B confirmed at D+6 significantly exceeds CSIS's $3.7B H+100 estimate. CSIS attributes this to heavier munitions use than initially modeled. The H+100 estimate was published Mar 5 — six days before the Pentagon figure became available. CSIS notes the D+6 figure is "broadly consistent" with the Reuters $5.6B munitions-only figure for D+2.
+        </div>
+        <div class="strip rd" style="margin-top:10px">
+          <strong>What the $11.3B excludes</strong>
+          Per NYT reporting: (1) pre-war hardware and personnel buildup ahead of first strikes; (2) any estimate of repairing damaged facilities; (3) some equipment replacement costs. A comprehensive accounting will be materially higher.
+        </div>
+        <div class="strip" style="margin-top:10px">
+          <strong>D+6 to D+12 — additional $5.2B</strong>
+          CSIS estimates D+7 through D+12 cost an additional $5.2B (~$867M/day average), reflecting the continued shift to cheaper munitions after the D+4 transition and declining Iranian launch rates.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="tab-panel" id="tp2">
+    <div class="card">
+      <div class="ct">Equipment &amp; Infrastructure Losses</div>
+      <div class="cn">Only CENTCOM-confirmed losses listed as confirmed. Others are reported by credible outlets but unconfirmed by DOD. CSIS cautions that costs "could be significantly higher."</div>
+      <table class="t">
+        <thead><tr><th>Asset</th><th>Incident</th><th class="r">Unit Cost</th><th class="r">Est. Total</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div>3× F-15EX fighters</div><div class="sub">CENTCOM confirmed</div></td>
+            <td style="font-size:12px;color:var(--mid)">Friendly-fire incident over Kuwait. Pilots safe. Production line open; ~3-year lead time for replacement.</td>
+            <td class="r vn">$103M ea.</td>
+            <td class="r vg">$309M</td>
+            <td><span class="src-badge src-confirmed">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td><div>1× KC-135 tanker</div><div class="sub">CENTCOM confirmed</div></td>
+            <td style="font-size:12px;color:var(--mid)">Lost over Iraq.</td>
+            <td class="r vn">~$60M</td>
+            <td class="r vg">~$60M</td>
+            <td><span class="src-badge src-confirmed">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td><div>11× MQ-9 Reaper drones</div><div class="sub">CBS News</div></td>
+            <td style="font-size:12px;color:var(--mid)">Losses in theater.</td>
+            <td class="r vn">~$30M ea.</td>
+            <td class="r vg">~$330M</td>
+            <td><span class="src-badge src-partial">Reported</span></td>
+          </tr>
+          <tr>
+            <td><div>1× THAAD AN/TPY-2 radar</div><div class="sub">Bloomberg</div></td>
+            <td style="font-size:12px;color:var(--mid)">Struck by Iranian missiles. No new THAAD interceptor deliveries until Apr 2027. Radar loss further degrades theater missile defense.</td>
+            <td class="r vn">~$350M</td>
+            <td class="r vg">~$350M</td>
+            <td><span class="src-badge src-partial">Reported</span></td>
+          </tr>
+          <tr>
+            <td><div>Base &amp; port infrastructure</div><div class="sub">Overhead photography</div></td>
+            <td style="font-size:12px;color:var(--mid)">Damage in Bahrain, Kuwait, Qatar. Satellite comms equipment primary cost driver. Full extent unclear.</td>
+            <td class="r">Uncertain</td>
+            <td class="r vg">~$350M+</td>
+            <td><span class="src-badge src-partial">Partial</span></td>
+          </tr>
+          <tr class="total">
+            <td colspan="2"><strong>H+100 CSIS estimate</strong><div class="sub">Mar 5 · only F-15EX losses + initial base damage</div></td>
+            <td></td><td class="r vg"><strong>~$359M</strong></td><td></td>
+          </tr>
+          <tr class="total" style="border-top:none">
+            <td colspan="2"><strong>D+6 CSIS revised estimate</strong><div class="sub">Mar 13 · incorporates KC-135, Reapers, THAAD radar, additional base damage visible in overhead photography</div></td>
+            <td></td><td class="r vn"><strong>~$1.4B</strong></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MUNITIONS -->
+  <div class="sec" id="s-munitions">Munitions — Inventory &amp; Strategic Risk</div>
+
+  <div class="strip nv" style="margin-bottom:16px">
+    <strong>The munitions transition — Gen. Caine, D+4 (Mar 7)</strong>
+    On D+4, General Caine reported U.S. forces had reached a "point of munitions transition" — shifting from standoff cruise missiles fired outside enemy range to "stand-in precision strikes overhead Iran." A Tomahawk costs $3.6M; a JDAM kit costs $80,000 — a 45× difference. This transition, enabled by degraded Iranian air defenses, is the primary driver of declining daily costs. B-1 and B-52 bombers began CONUS-based operations over Iran with heavier bomb loads. LUCAS drones and PrSMs were used in combat for the first time.
+  </div>
+
+  <div class="mun-grid">
+    <div class="mun">
+      <div class="mun-name">Tomahawk (BGM-109)</div>
+      <div class="mun-qty">~319 used D+6</div>
+      <div class="mun-cost">$3.6M/unit</div>
+      <div class="mun-note">CSIS: "would nearly empty the missile magazines." Pre-war ~3,100; ~2,700 after D+6. 160+ in opening wave. Ships cannot be reloaded at sea. FY2026: 190 deliveries (64→Army, 16→Marines).</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--red)">No</strong> — 190 delivered vs. 319 used</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">JASSM-ER (AGM-158B)</div>
+      <div class="mun-qty">Significant qty.</div>
+      <div class="mun-cost">~$1.1M/unit</div>
+      <div class="mun-note">Inventory ~3,500 — large due to sizable AF purchases over past decade. Main air-launched long-range missile. Cargo aircraft can resupply bases in theater.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--teal)">Likely</strong> — large inventory</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">JDAM / Gravity Bombs</div>
+      <div class="mun-qty">~2,600 at H+100</div>
+      <div class="mun-cost">~$80K/kit</div>
+      <div class="mun-note">Primary strike munition after D+4 transition. Large inventories. B-1/B-52 flying heavier loads. Based on 1.3:1 munition-to-target ratio (Odyssey Dawn precedent).</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--teal)">Yes</strong> — large inventory, low unit cost</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">Patriot PAC-3 MSE</div>
+      <div class="mun-qty">~1,600 MSE pre-war</div>
+      <div class="mun-cost">High unit cost</div>
+      <div class="mun-note">Pre-war: ~2,000 total (1,600 PAC-3 MSE). FY2026: 172 deliveries. Iran continues ballistic missile attacks. Gulf allies also need resupply. Also needed in Ukraine and western Pacific.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--red)">No</strong> — 172 deliveries insufficient</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">SM-3 / SM-6</div>
+      <div class="mun-qty">Heavy usage</div>
+      <div class="mun-cost">SM-3: ~$10–27M · SM-6: ~$4.1M</div>
+      <div class="mun-note">FY2026: 76 SM-3s (45 Block IB + 31 Block IIA) + 125 SM-6s. Coalition intercepted ~500 missiles + ~1,300 drones by D+3, reducing U.S. burden. Critical for western Pacific deterrence.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--red)">No</strong> — production rate below usage rate</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">THAAD Interceptors</div>
+      <div class="mun-qty">~534 pre-war (est.)</div>
+      <div class="mun-cost">No deliveries since Aug 2023</div>
+      <div class="mun-note">"More than 150" used in June 2025 Twelve-Day War (Israel-Iran). AN/TPY-2 radar confirmed lost in Epic Fury. No new interceptor deliveries until April 2027.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--red)">No</strong> — zero deliveries until Apr 2027</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">ATACMS / PrSM</div>
+      <div class="mun-qty">ATACMS: ~1,000</div>
+      <div class="mun-cost">ATACMS prod. ended 2007</div>
+      <div class="mun-note">ATACMS: production ended 2007; life-extension program. PrSM successor: ~60 delivered total, 70 more in FY2026. PrSM used in combat for the first time in Epic Fury.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--red)">No</strong> — ATACMS line closed; PrSM just entering service</div>
+    </div>
+    <div class="mun">
+      <div class="mun-name">LUCAS Drones</div>
+      <div class="mun-qty">First combat use</div>
+      <div class="mun-cost">Low-cost · limited inventory</div>
+      <div class="mun-note">American clone of Iranian Shahed. Launched from LCS inside Persian Gulf — combat debut. Entered service 2025; numbers limited. "Countless one-way attack drones" per CENTCOM.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:7px">FY2026 production covers usage: <strong style="color:var(--muted)">Unknown</strong> — new system, no public figures</div>
+    </div>
+  </div>
+
+  <!-- PROJECTION TOOL -->
+  <!-- CSIS CHARTS -->
+  <div class="sec" id="s-charts">Cost Charts <small>— reconstructed from CSIS Fig. 1 &amp; Fig. 2, Mar 13, 2026</small></div>
+
+  <div class="two" style="margin-bottom:20px">
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Daily Cost — Figure 1</div>
+      <div class="cn">Reconstructed from CSIS Mar 13 analysis. D+1–3 dominated by exquisite munitions; D+4 transition declared by Gen. Caine; D+5–12 shift to low-cost PGMs + 90% drop in Iranian launches. Post-D+12: CSIS states "~$0.5B/day" going forward.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--navy);border-radius:2px;margin-right:4px;vertical-align:middle"></span>CSIS estimate</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--navy);opacity:.25;border-radius:2px;margin-right:4px;vertical-align:middle;border:1px dashed var(--navy)"></span>CSIS forward est. (~$0.5B/day)</span>
+        <span style="color:var(--red)">▼ D+4 munitions transition</span>
+      </div>
+      <canvas id="chart-daily" height="220"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="ct">Cumulative Cost — Figure 2</div>
+      <div class="cn">Confirmed anchors shown as solid bars. D+12 CSIS estimate shown in gold. Post-D+12 extrapolation at CSIS's stated ~$0.5B/day shown as dashed — not a forecast.</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--navy);border-radius:2px;margin-right:4px;vertical-align:middle"></span>Pentagon confirmed</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--gold);border-radius:2px;margin-right:4px;vertical-align:middle"></span>CSIS estimate</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--muted);opacity:.4;border-radius:2px;margin-right:4px;vertical-align:middle;border:1px dashed var(--muted)"></span>Extrapolation</span>
+      </div>
+      <canvas id="chart-cumul" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="strip nv" style="margin-bottom:20px">
+    <strong>On these charts</strong>
+    These are reconstructions of CSIS's Figure 1 and Figure 2 from the Mar 13 update. The daily cost figures for D+1–12 are CSIS estimates derived from their methodology — not Pentagon-released day-by-day data, which does not exist publicly. D+6 ($11.3B) and D+12 ($16.5B) are the only anchors. The post-D+12 line uses CSIS's own stated forward rate of "about half a billion dollars a day." The D+4 transition cliff reflects Gen. Caine's confirmed declaration of the munitions transition point.
+  </div>
+
+  <div class="sec" id="s-projection">Projection Tool <small>— scenario modeling only; no confirmed data beyond D+12</small></div>
+
+  <div class="proj-tool">
+    <div class="proj-title">Cost Scenario Modeler</div>
+    <div class="proj-note">Starting from the D+12 CSIS estimate of $16.5B — adjust the assumed daily rate and campaign duration to model total costs. These are illustrative scenarios, not forecasts.</div>
+    <div class="proj-controls">
+      <div class="proj-fg">
+        <label>Assumed daily rate ($B/day)</label>
+        <input type="range" id="p-rate" min="0.2" max="2.0" step="0.05" value="0.83" oninput="updateProj()">
+        <div class="proj-val" id="p-rate-val">$0.83B/day</div>
+      </div>
+      <div class="proj-fg">
+        <label>Total campaign days</label>
+        <input type="range" id="p-days" min="12" max="90" step="1" value="30" oninput="updateProj()">
+        <div class="proj-val" id="p-days-val">30 days</div>
+      </div>
+      <div class="proj-fg">
+        <label>Confirmed base (D+12)</label>
+        <div class="proj-val">$16.5B</div>
+      </div>
+    </div>
+    <div class="proj-results">
+      <div class="proj-res">
+        <div class="proj-res-label">Additional cost (D+13 onward)</div>
+        <div class="proj-res-val" id="p-add">$14.9B</div>
+        <div class="proj-res-sub" id="p-days-remaining">18 additional days</div>
+      </div>
+      <div class="proj-res">
+        <div class="proj-res-label">Projected campaign total</div>
+        <div class="proj-res-val" id="p-total">$31.4B</div>
+        <div class="proj-res-sub">Including confirmed D+1–12</div>
+      </div>
+      <div class="proj-res">
+        <div class="proj-res-label">Annualized rate (reference)</div>
+        <div class="proj-res-val" id="p-annual">$303B</div>
+        <div class="proj-res-sub">If rate sustained — illustrative only</div>
+      </div>
+    </div>
+    <div class="proj-caveat">Reference points: CSIS estimated ~$891M/day at H+100 (before munitions transition) · ~$867M/day average D+7–12 (CSIS Mar 13) · OIR annual peak was ~$38M/day ($14B/year) · OIF averaged ~$1.77B/day over first 30 days. A $0.55–0.85B/day sustainment rate is plausible for ongoing strike operations with cheaper munitions.</div>
+  </div>
+
+  <!-- CONTEXT -->
+  <div class="sec" id="s-context">Context — Comparisons &amp; Implications</div>
+
+  <div class="card" style="margin-bottom:18px">
+    <div class="ct">Comparative War Costs</div>
+    <div class="cn">Indexed to $16.5B (D+12 estimate). OIF and Desert Storm adjusted to 2026 dollars. All comparisons approximate.</div>
+    <div class="comp-row">
+      <div class="comp-hd"><span class="comp-name"><strong>Operation Epic Fury</strong> — D+12, 2026 (CSIS est.)</span><span class="comp-val">$16.5B</span></div>
+      <div class="comp-track"><div class="comp-fill" data-w="100" style="background:var(--navy)"></div></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-hd"><span class="comp-name">Operation Inherent Resolve — annual peak cost (2016)</span><span class="comp-val">~$14B / year</span></div>
+      <div class="comp-track"><div class="comp-fill" data-w="85" style="background:var(--gold);opacity:.75"></div></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-hd"><span class="comp-name">Operation Iraqi Freedom — first 30 days (2003, adj.)</span><span class="comp-val">~$53B</span></div>
+      <div class="comp-track"><div class="comp-fill" data-w="100" style="background:var(--muted);opacity:.38"></div></div>
+    </div>
+    <div class="comp-row">
+      <div class="comp-hd"><span class="comp-name">Operation Desert Storm — 43 days total (1991, adj.)</span><span class="comp-val">~$61B</span></div>
+      <div class="comp-track"><div class="comp-fill" data-w="100" style="background:var(--muted);opacity:.26"></div></div>
+    </div>
+    <div class="comp-row" style="margin-bottom:0">
+      <div class="comp-hd"><span class="comp-name">U.S. Ukraine security assistance — FY2022–FY2025 total</span><span class="comp-val">~$114B</span></div>
+      <div class="comp-track"><div class="comp-fill" data-w="100" style="background:var(--muted);opacity:.16"></div></div>
+    </div>
+    <p style="margin-top:14px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)">Epic Fury's first 12 days (~$16.5B) already exceed OIR's entire annual peak (~$14B/year). At the D+6 implied rate (~$1.88B/day), Epic Fury would match OIF's 30-day total in under 3 weeks. The declining rate after D+4 significantly changes the trajectory.</p>
+  </div>
+
+  <!-- FUNDING -->
+  <div class="sec">Funding Mechanisms <small>— CSIS analysis of how DOD will pay for this</small></div>
+  <div class="strip rd" style="margin-bottom:16px">
+    <strong>Supplemental appropriation will be required</strong>
+    Munitions replacement (~88% of the D+6 total) is entirely unbudgeted. CSIS: "The DOD will need additional funds at some point because the level of budget cuts needed to fund this conflict internally would likely be politically and operationally difficult." The White House had not publicly addressed war costs as of Mar 13. Any funding action "will become a focal point for opposition to the war."
+  </div>
+  <div class="scenario-grid">
+    <div class="scenario">
+      <div class="scenario-num">Option 01</div>
+      <div class="scenario-title">Supplemental Appropriation</div>
+      <div class="scenario-desc">Standalone bill covering war costs and other unexpected government expenses. Precedent: Bush administration used this at the start of Iraq and Afghanistan wars.</div>
+      <span class="s-tag s-likely">Strongest precedent</span>
+    </div>
+    <div class="scenario">
+      <div class="scenario-num">Option 02</div>
+      <div class="scenario-title">FY2027 Reconciliation Bill</div>
+      <div class="scenario-desc">War costs folded into a future reconciliation bill. CSIS: "It is not clear whether there will be such a bill." Would delay funding and may face procedural constraints.</div>
+      <span class="s-tag s-poss">Possible</span>
+    </div>
+    <div class="scenario">
+      <div class="scenario-num">Option 03</div>
+      <div class="scenario-title">Divert Reconciliation Funds</div>
+      <div class="scenario-desc">Divert from the DOD's $150B already allocated in the first reconciliation bill. Would reduce funding for other defense priorities. CSIS: "politically and operationally difficult."</div>
+      <span class="s-tag s-unlik">Most difficult</span>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="sec">Analytical Notes</div>
+  <div class="strip">
+    <strong>Cost is highly sensitive to munitions mix</strong>
+    CSIS explicitly flags this in both reports. A Tomahawk ($3.6M) costs 45× more than a JDAM kit ($80K). The shift confirmed on D+4 is the single largest driver of the declining daily rate. The opening wave — "multiple waves of cruise missiles" with 160+ Tomahawks — was the most expensive phase.
+  </div>
+  <div class="strip tl">
+    <strong>Allied burden-sharing materially reduced U.S. costs</strong>
+    Qatar, Bahrain, Kuwait, and the UAE collectively intercepted ~500 cruise/ballistic missiles and ~1,300 drones by D+3. CSIS notes this "likely overestimates the number of kills" but reflects genuine burden-sharing that preserved U.S. interceptor stocks. Without this, air defense costs (range: $1.2B–$3.7B) could have approached the top of the range.
+  </div>
+  <div class="strip rd">
+    <strong>Western Pacific and Ukraine inventory spillover</strong>
+    FY2026 production cannot replenish usage: Tomahawk (190 units), Patriot (172), SM-3 (76), SM-6 (125). THAAD is most acute — no deliveries until April 2027, and the AN/TPY-2 radar loss further degrades missile defense. ATACMS production ended 2007 with ~1,000 remaining; PrSM is just entering production with ~60 units delivered. These shortfalls reduce deterrence credibility in the western Pacific and limit Ukraine support capacity.
+  </div>
+  <div class="strip nv">
+    <strong>What the Pentagon has not released</strong>
+    DOD has not provided: day-by-day cost figures, a confirmed breakdown of the $11.3B, a munitions-expended count by type, or any estimate of facility repair costs. CSIS notes: "The DOD has released few specifics on the ongoing operations, whereas in previous Middle East campaigns, it provided daily strike updates or regular statistical compendia." This tracker will be updated as new official data becomes available.
+  </div>
+
+</div>
+
+<footer>
+  <span>
+    Sources: <a href="https://www.csis.org/analysis/iran-war-cost-estimate-update-113-billion-day-6-165-billion-day-12" target="_blank">CSIS Mar 13, 2026</a> ·
+    <a href="https://www.csis.org/analysis/37-billion-estimated-cost-epic-furys-first-100-hours" target="_blank">CSIS Mar 5, 2026</a>
+  </span>
+  <span>Beyond Parallel / Andy Lim Projects · not affiliated with CSIS · data as of Mar 13, 2026 · built with <a href="https://claude.ai" target="_blank">Claude</a></span>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ── STORAGE ──────────────────────────────────────── */
+const STORAGE_KEY = 'epic-fury-anchors-v1';
+const UPDATED_KEY = 'epic-fury-updated-v1';
+const PASSPHRASE  = 'epicfury2026';
+let adminUnlocked = false;
+
+function saveUpdated(ts) {
+  try {
+    localStorage.setItem(UPDATED_KEY, ts);
+    updateTimestamps(ts);
+  } catch(e){}
+}
+
+function loadUpdated() {
+  try {
+    const ts = localStorage.getItem(UPDATED_KEY);
+    if (ts) updateTimestamps(ts);
+  } catch(e){}
+}
+
+function updateTimestamps(ts) {
+  const a = document.getElementById('last-updated-val');
+  const b = document.getElementById('last-updated-footer');
+  if (a) a.textContent = ts;
+  if (b) b.textContent = ts;
+}
+
+/* ── ADMIN ───────────────────────────────────────── */
+function toggleAdmin() {
+  const panel = document.getElementById('admin-panel');
+  const open = panel.style.display !== 'none';
+  panel.style.display = open ? 'none' : 'block';
+  if (!open && !adminUnlocked) {
+    document.getElementById('auth-gate').style.display = 'flex';
+    document.getElementById('editor').style.display = 'none';
+    setTimeout(() => document.getElementById('auth-input').focus(), 50);
+  }
+}
+
+function checkAuth() {
+  if (document.getElementById('auth-input').value === PASSPHRASE) {
+    adminUnlocked = true;
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('editor').style.display = 'block';
+    document.getElementById('auth-input').value = '';
+    document.getElementById('auth-err').style.display = 'none';
+  } else {
+    document.getElementById('auth-err').style.display = 'inline';
+    document.getElementById('auth-input').value = '';
+    document.getElementById('auth-input').focus();
+  }
+}
+
+function lockAdmin() {
+  adminUnlocked = false;
+  document.getElementById('admin-panel').style.display = 'none';
+}
+
+function addAnchor() {
+  const label = document.getElementById('f-label').value.trim();
+  const date  = document.getElementById('f-date').value.trim();
+  const cost  = document.getElementById('f-cost').value.trim();
+  const type  = document.getElementById('f-type').value;
+  const src   = document.getElementById('f-src').value.trim();
+  const note  = document.getElementById('f-note').value.trim();
+  if (!label || !cost) { alert('Label and cumulative cost are required.'); return; }
+
+  // Build a new timeline row and inject into the timeline before the "awaiting" row
+  const tl = document.querySelector('.timeline');
+  const awaitRow = tl.querySelector('.tl-row:last-child');
+  const div = document.createElement('div');
+  div.className = 'tl-row ' + type;
+  div.innerHTML = `
+    <div class="tl-left">
+      <span class="tl-date">${date}</span>
+      <span class="tl-day">${label}</span>
+    </div>
+    <div class="tl-content">
+      <div class="tl-headline">${src}</div>
+      <div class="tl-val ${type}">$${parseFloat(cost).toFixed(1)}B</div>
+      <div class="tl-desc">${note}</div>
+      <span class="tl-badge ${type}">${type==='confirmed'?'Pentagon Confirmed':type==='partial'?'Partial':'CSIS Estimate'}</span>
+    </div>
+  `;
+  tl.insertBefore(div, awaitRow);
+
+  // Update timestamps
+  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+  saveUpdated(now);
+
+  // Clear form
+  ['f-label','f-date','f-cost','f-src','f-note'].forEach(id => document.getElementById(id).value = '');
+  alert('Anchor added. Reload the page to persist — or update the DEFAULT data in the source file for a permanent change.');
+}
+
+function resetAnchors() {
+  if (confirm('Reset the last-updated timestamp to default?')) {
+    try { localStorage.removeItem(UPDATED_KEY); } catch(e){}
+    updateTimestamps('Mar 13, 2026');
+  }
+}
+
+function exportCSV() {
+  const rows = [
+    ['Anchor','Date','Cumulative ($B)','Type','Notes'],
+    ['H+100','Mar 5, 2026','3.7','CSIS estimate','$3.5B unbudgeted; $178M O&S mostly budgeted; munitions $3.1B; losses $359M'],
+    ['D+2 munitions','Mar 10, 2026','5.6','Reuters (munitions only)','Munitions replacement cost only — not total war cost'],
+    ['D+6','Mar 11, 2026','11.3','Pentagon confirmed','Excludes pre-war buildup and facility repair; not WH-cleared'],
+    ['D+12','Mar 13, 2026','16.5','CSIS estimate','Revised from $3.7B H+100 base; losses revised to $1.4B'],
+  ];
+  const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'epic-fury-cost-anchors.csv';
+  a.click();
+}
+
+/* ── CSIS CHARTS ─────────────────────────────────────
+   Data derived from CSIS Mar 13 methodology:
+   - D+1–3: exquisite munitions phase (~70-80% high-end)
+   - D+4:   munitions transition declared (Gen. Caine)
+   - D+5–6: transition in effect; Iranian attacks -90% by D+5
+   - D+6:   $11.3B cumulative confirmed (Pentagon)
+   - D+7–12: low-cost PGMs dominant; 1% standoff by D+14 (Hegseth)
+   - D+12:  $16.5B cumulative (CSIS estimate)
+   - D+13+: "~$0.5B/day" (CSIS stated forward rate)
+
+   Daily values are CSIS estimates back-calculated to fit both
+   confirmed anchors and the described shape. They are not
+   Pentagon-released figures.
+──────────────────────────────────────────────────── */
+function renderCSISCharts() {
+  // Daily cost estimates — CSIS methodology
+  // D+1–6 must sum to $11.3B; D+7–12 must sum to $5.2B
+  // Shape: high early, cliff at D+4, plateau thereafter
+  const DAILY = [
+    { day:'D+1', cost:2.80, phase:'exquisite' },
+    { day:'D+2', cost:2.50, phase:'exquisite' },
+    { day:'D+3', cost:2.00, phase:'exquisite' },
+    { day:'D+4', cost:1.60, phase:'transition' }, // Gen. Caine transition declaration
+    { day:'D+5', cost:1.30, phase:'low-cost' },
+    { day:'D+6', cost:1.10, phase:'low-cost' },   // $11.3B cumulative confirmed
+    { day:'D+7', cost:0.92, phase:'low-cost' },
+    { day:'D+8', cost:0.88, phase:'low-cost' },
+    { day:'D+9', cost:0.86, phase:'low-cost' },
+    { day:'D+10',cost:0.86, phase:'low-cost' },
+    { day:'D+11',cost:0.85, phase:'low-cost' },
+    { day:'D+12',cost:0.83, phase:'low-cost' },   // $16.5B cumulative CSIS est.
+    { day:'D+13',cost:0.50, phase:'forward' },    // CSIS: "~$0.5B/day"
+    { day:'D+14',cost:0.50, phase:'forward' },
+    { day:'D+15',cost:0.50, phase:'forward' },
+    { day:'D+20',cost:0.50, phase:'forward' },
+    { day:'D+30',cost:0.50, phase:'forward' },
+  ];
+
+  const labels     = DAILY.map(d => d.day);
+  const costs      = DAILY.map(d => d.cost);
+  const bgColors   = DAILY.map(d =>
+    d.phase === 'forward'    ? 'rgba(0,55,101,0.18)' :
+    d.phase === 'transition' ? '#C88A00' :
+    d.phase === 'exquisite'  ? '#003765' : '#003765'
+  );
+  const borderColors = DAILY.map(d =>
+    d.phase === 'forward' ? 'rgba(0,55,101,0.5)' : 'transparent'
+  );
+
+  // Annotations for D+4 and D+6
+  const chartAnnotations = {
+    d4line: {
+      type: 'line',
+      xMin: 3, xMax: 3,
+      borderColor: 'rgba(200,16,46,0.5)',
+      borderWidth: 1.5,
+      borderDash: [4,3],
+      label: { content: 'Transition', display: true, position: 'start',
+               font: { family: 'IBM Plex Mono', size: 9 }, color: 'rgba(200,16,46,0.8)',
+               backgroundColor: 'transparent', padding: 2 }
+    },
+    d6line: {
+      type: 'line',
+      xMin: 5, xMax: 5,
+      borderColor: 'rgba(0,122,74,0.5)',
+      borderWidth: 1.5,
+      borderDash: [4,3],
+      label: { content: '$11.3B', display: true, position: 'start',
+               font: { family: 'IBM Plex Mono', size: 9 }, color: 'rgba(0,122,74,0.85)',
+               backgroundColor: 'transparent', padding: 2 }
+    }
+  };
+
+  const sharedScaleOpts = {
+    x: {
+      grid: { display: false },
+      ticks: { font: { family: 'IBM Plex Mono', size: 9 }, color: '#6B7280', maxRotation: 45 }
+    }
+  };
+
+  // ── DAILY CHART ──
+  if (window._DC) window._DC.destroy();
+  window._DC = new Chart(document.getElementById('chart-daily'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: costs,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderDash: [4,3],
+        borderRadius: 2,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 800 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = DAILY[ctx.dataIndex];
+              const note = d.phase === 'forward' ? ' — CSIS forward est.' :
+                           d.phase === 'transition' ? ' — transition day (Gen. Caine D+4)' :
+                           d.phase === 'exquisite' ? ' — exquisite munitions phase' : ' — CSIS est.';
+              return ` $${ctx.raw.toFixed(2)}B/day${note}`;
+            }
+          }
+        }
+      },
+      scales: {
+        ...sharedScaleOpts,
+        y: {
+          grid: { color: 'rgba(0,55,101,0.07)' },
+          ticks: {
+            font: { family: 'IBM Plex Mono', size: 9 }, color: '#6B7280',
+            callback: v => '$' + v.toFixed(1) + 'B'
+          },
+          title: {
+            display: true, text: '$ billions / day',
+            font: { family: 'IBM Plex Mono', size: 9 }, color: '#6B7280'
+          }
+        }
+      }
+    }
+  });
+
+  // ── CUMULATIVE CHART ──
+  // Build cumulative from daily + forward extrapolation
+  let cum = 0;
+  const cumulData = DAILY.map(d => { cum += d.cost; return +cum.toFixed(2); });
+  const cumulColors = DAILY.map(d =>
+    d.day === 'D+6'  ? '#1A7A4A' :  // confirmed anchor — green
+    d.day === 'D+12' ? '#F5A800' :  // CSIS est. anchor — gold
+    d.phase === 'forward' ? 'rgba(107,114,128,0.3)' :
+    '#003765'
+  );
+
+  if (window._CC) window._CC.destroy();
+  window._CC = new Chart(document.getElementById('chart-cumul'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: cumulData,
+        backgroundColor: cumulColors,
+        borderRadius: 2,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 800 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const d = DAILY[ctx.dataIndex];
+              const tag = d.day === 'D+6'  ? ' ✓ Pentagon confirmed' :
+                          d.day === 'D+12' ? ' · CSIS estimate' :
+                          d.phase === 'forward' ? ' · extrapolated @$0.5B/day' : ' · CSIS est.';
+              return ` $${ctx.raw.toFixed(2)}B cumulative${tag}`;
+            }
+          }
+        }
+      },
+      scales: {
+        ...sharedScaleOpts,
+        y: {
+          grid: { color: 'rgba(0,55,101,0.07)' },
+          ticks: {
+            font: { family: 'IBM Plex Mono', size: 9 }, color: '#6B7280',
+            callback: v => '$' + v.toFixed(0) + 'B'
+          },
+          title: {
+            display: true, text: 'cumulative $ billions',
+            font: { family: 'IBM Plex Mono', size: 9 }, color: '#6B7280'
+          }
+        }
+      }
+    }
+  });
+}
+
+/* ── PROJECTION ──────────────────────────────────── */
+function updateProj() {
+  const rate  = parseFloat(document.getElementById('p-rate').value);
+  const days  = parseInt(document.getElementById('p-days').value);
+  const base  = 16.5;
+  const extra = Math.max(0, days - 12);
+  const add   = extra * rate;
+  const total = base + add;
+  document.getElementById('p-rate-val').textContent   = '$' + rate.toFixed(2) + 'B/day';
+  document.getElementById('p-days-val').textContent   = days + ' days';
+  document.getElementById('p-add').textContent        = '$' + add.toFixed(1) + 'B';
+  document.getElementById('p-days-remaining').textContent = extra + ' additional days';
+  document.getElementById('p-total').textContent      = '$' + total.toFixed(1) + 'B';
+  document.getElementById('p-annual').textContent     = '$' + (rate * 365).toFixed(0) + 'B';
+}
+
+/* ── TABS ────────────────────────────────────────── */
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  document.querySelectorAll('.tab-panel').forEach((p,j) => p.classList.toggle('active', j===i));
+}
+
+/* ── COMPARATOR ANIMATE ──────────────────────────── */
+function animateComps() {
+  document.querySelectorAll('.comp-fill[data-w]').forEach((el,i) => {
+    setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 300 + i * 100);
+  });
+}
+
+/* ── RUNNING TOTAL ───────────────────────────────────
+   Base: $16.5B at D+12 (Mar 15, 2026) — CSIS estimate
+   Forward rate: ~$0.5B/day — CSIS stated (Mar 13, 2026)
+   This is an extrapolation, not a new confirmed figure.
+──────────────────────────────────────────────────── */
+function updateRunningTotal() {
+  const D12_DATE  = new Date('2026-03-15');
+  const D12_COST  = 16.5;
+  const RATE      = 0.5; // CSIS stated forward rate, $B/day
+  const today     = new Date();
+  today.setHours(0,0,0,0);
+  const daysSince = Math.max(0, Math.floor((today - D12_DATE) / (1000*60*60*24)));
+  const campaignDay = 12 + daysSince;
+
+  const totalEl  = document.getElementById('hero-running-total');
+  const detailEl = document.getElementById('hero-extrap-detail');
+
+  // Always show the last confirmed CSIS figure ($16.5B) as the headline number.
+  // The extrapolation appears only in the detail line below, clearly labeled.
+  if (totalEl) totalEl.textContent = '$16.5B';
+
+  if (detailEl) {
+    if (daysSince === 0) {
+      detailEl.textContent = 'Through Day 12 (Mar 15, 2026) · CSIS estimate · Mar 13, 2026';
+    } else {
+      const extrap = (D12_COST + daysSince * RATE).toFixed(1);
+      detailEl.textContent =
+        'Through Day 12 (Mar 15) · CSIS estimate · '
+        + daysSince + ' day' + (daysSince !== 1 ? 's' : '') + ' since last update'
+        + ' · At CSIS ~$0.5B/day forward rate: ~$' + extrap + 'B by Day ' + campaignDay;
+    }
+  }
+}
+
+/* ── INIT ────────────────────────────────────────── */
+window.addEventListener('load', () => {
+  document.getElementById('live-date').textContent =
+    new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  loadUpdated();
+  updateProj();
+  animateComps();
+  renderCSISCharts();
+  updateRunningTotal();
+});
+</script>
+</body>
+</html>
