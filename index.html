@@ -312,8 +312,8 @@ footer a:hover{opacity:1}
       <div style="margin-bottom:20px">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px">Latest CSIS Cost Estimate</div>
         <div style="font-family:'Libre Baskerville',serif;font-size:clamp(44px,7vw,76px);font-weight:700;color:var(--gold);line-height:1;letter-spacing:-.02em" id="hero-running-total">$16.5B</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.45);margin-top:10px;line-height:1.65" id="hero-extrap-detail">Through Day 12 (Mar 15, 2026) · CSIS estimate</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.22);margin-top:3px">Unbudgeted costs only · excludes pre-war military buildup</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500;color:rgba(255,255,255,.7);margin-top:10px;letter-spacing:.02em" id="hero-extrap-detail">Through Day 12 · Mar 15, 2026</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.38);margin-top:4px">CSIS estimate · Mar 13, 2026 · unbudgeted costs only</div>
       </div>
       <p class="hero-sub">This tracker shows only what has been confirmed or formally estimated by CSIS. Day-by-day breakdowns are not publicly available. All figures are unbudgeted costs; pre-war military buildup is excluded.</p>
       <div class="hero-authors">Analysis: <a href="https://www.csis.org/people/mark-f-cancian" target="_blank">Mark F. Cancian</a> &amp; <a href="https://www.csis.org/people/chris-h-park" target="_blank">Chris H. Park</a> · CSIS · Mar 5 &amp; Mar 13, 2026 · Dashboard built with <a href="https://claude.ai" target="_blank">Claude</a></div>
@@ -357,13 +357,13 @@ footer a:hover{opacity:1}
 
   <!-- STAT GRID -->
   <div class="stat-grid">
-    <div class="stat hi">
+    <div class="stat">
       <div class="sk">D+6 Cumulative</div>
       <div class="sv">$11.3B</div>
       <div class="ss">Pentagon to Congress · Mar 11, 2026<br>Unbudgeted costs only</div>
       <div><span class="stat-tag tag-confirmed">Confirmed</span></div>
     </div>
-    <div class="stat">
+    <div class="stat hi">
       <div class="sk">D+12 Cumulative</div>
       <div class="sv">$16.5B</div>
       <div class="ss">CSIS revised estimate · Mar 13, 2026</div>
@@ -878,66 +878,79 @@ footer a:hover{opacity:1}
       <thead>
         <tr>
           <th>Munition</th>
-          <th class="r">Unit Cost</th>
-          <th class="r" style="padding-right:24px">Est. Qty Used (D+6)</th>
+          <th class="r" style="padding-right:28px">Unit Cost</th>
+          <th class="r" style="padding-right:28px">Est. Qty (D+6)</th>
           <th class="r">Est. Cost</th>
-          <th>Notes</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td><div>Tomahawk (BGM-109)</div><div class="sub">Ship-launched · ground attack</div></td>
-          <td class="r vn">$3.6M</td>
-          <td class="r" style="padding-right:24px">~319</td>
+          <td>
+            <div>Tomahawk (BGM-109)</div>
+            <div class="sub">Ship-launched · ground attack · ~319 would nearly empty Navy ship magazines · cannot be reloaded at sea</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">$3.6M</td>
+          <td class="r" style="padding-right:28px">~319</td>
           <td class="r vg">~$1.15B</td>
-          <td style="font-size:12px;color:var(--mid)">Would nearly empty Navy ship magazines in region. Cannot be reloaded at sea.</td>
         </tr>
         <tr>
-          <td><div>JASSM-ER (AGM-158B)</div><div class="sub">Air-launched · long-range standoff</div></td>
-          <td class="r vn">~$1.1M</td>
-          <td class="r" style="padding-right:24px">Significant</td>
-          <td class="r vg">Est. in totals</td>
-          <td style="font-size:12px;color:var(--mid)">Main air-launched long-range missile. Inventory ~3,500. Exact quantity not confirmed.</td>
+          <td>
+            <div>JASSM-ER (AGM-158B)</div>
+            <div class="sub">Air-launched · long-range standoff · inventory ~3,500 · exact quantity not confirmed</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">~$1.1M</td>
+          <td class="r" style="padding-right:28px">Significant</td>
+          <td class="r vg">Incl. in total</td>
         </tr>
         <tr>
-          <td><div>SM-3 (Block IB / IIA)</div><div class="sub">Air defense · ballistic missile intercept</div></td>
-          <td class="r vn">~$10–27M</td>
-          <td class="r" style="padding-right:24px">Significant</td>
-          <td class="r vg">Est. in totals</td>
-          <td style="font-size:12px;color:var(--mid)">Used against Iranian ballistic missiles. FY2026 deliveries: 76 total.</td>
+          <td>
+            <div>SM-3 (Block IB / IIA)</div>
+            <div class="sub">Ballistic missile defense · FY2026 deliveries: 76 total (45 Block IB + 31 Block IIA)</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">~$10–27M</td>
+          <td class="r" style="padding-right:28px">Significant</td>
+          <td class="r vg">Incl. in total</td>
         </tr>
         <tr>
-          <td><div>SM-6</div><div class="sub">Air defense · cruise missiles &amp; drones</div></td>
-          <td class="r vn">~$4.1M</td>
-          <td class="r" style="padding-right:24px">Significant</td>
-          <td class="r vg">Est. in totals</td>
-          <td style="font-size:12px;color:var(--mid)">Used against cruise missiles, drones, and terminal-phase ballistic missiles. FY2026: 125 deliveries.</td>
+          <td>
+            <div>SM-6</div>
+            <div class="sub">Cruise missile, drone &amp; terminal-phase BM defense · FY2026: 125 deliveries</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">~$4.1M</td>
+          <td class="r" style="padding-right:28px">Significant</td>
+          <td class="r vg">Incl. in total</td>
         </tr>
         <tr>
-          <td><div>Patriot PAC-3 MSE</div><div class="sub">Air defense · ballistic missiles</div></td>
-          <td class="r vn">High</td>
-          <td class="r" style="padding-right:24px">Significant</td>
-          <td class="r vg">Est. in totals</td>
-          <td style="font-size:12px;color:var(--mid)">Pre-war inventory ~1,600 MSE. FY2026: 172 deliveries. Ongoing demand from Iranian BM attacks.</td>
+          <td>
+            <div>Patriot PAC-3 MSE</div>
+            <div class="sub">Ballistic missile defense · pre-war ~1,600 MSE · FY2026: 172 deliveries · also needed Ukraine + W. Pacific</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">High</td>
+          <td class="r" style="padding-right:28px">Significant</td>
+          <td class="r vg">Incl. in total</td>
         </tr>
         <tr>
-          <td><div>JDAM / Gravity Bombs</div><div class="sub">Air-launched · short-range precision</div></td>
-          <td class="r vn">~$80K/kit</td>
-          <td class="r" style="padding-right:24px">~2,600 (H+100)</td>
+          <td>
+            <div>JDAM / Gravity Bombs</div>
+            <div class="sub">Primary munition from D+5 onward · ~2,600 used at H+100 (1.3:1 ratio vs. ~2,000 targets) · large inventories</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">~$80K/kit</td>
+          <td class="r" style="padding-right:28px">~2,600+ (H+100)</td>
           <td class="r vg">~$208M</td>
-          <td style="font-size:12px;color:var(--mid)">Based on 1.3:1 ratio against ~2,000 targets at H+100. Primary munition from D+5 onward. Large inventories.</td>
         </tr>
         <tr>
-          <td><div>ATACMS / PrSM</div><div class="sub">Ground-launched · HIMARS</div></td>
-          <td class="r vn">High</td>
-          <td class="r" style="padding-right:24px">Limited</td>
-          <td class="r vg">Est. in totals</td>
-          <td style="font-size:12px;color:var(--mid)">ATACMS: ~1,000 total, production ended 2007. PrSM: ~60 delivered total — first combat use in Epic Fury.</td>
+          <td>
+            <div>ATACMS / PrSM</div>
+            <div class="sub">Ground-launched via HIMARS · ATACMS: ~1,000 total, production ended 2007 · PrSM: ~60 delivered, first combat use</div>
+          </td>
+          <td class="r vn" style="padding-right:28px">High</td>
+          <td class="r" style="padding-right:28px">Limited</td>
+          <td class="r vg">Incl. in total</td>
         </tr>
         <tr class="total">
-          <td colspan="3"><strong>Total offensive + air defense munitions (D+6 CSIS est.)</strong></td>
-          <td class="r vn"><strong>~$9.9B</strong></td>
-          <td style="font-size:11px;color:var(--muted)">87.6% of $11.3B total</td>
+          <td colspan="2"><strong>Total offensive + air defense munitions (D+6 CSIS est.)</strong></td>
+          <td class="r vn" style="padding-right:28px"></td>
+          <td class="r vn"><strong>~$9.9B</strong><div class="sub">87.6% of $11.3B</div></td>
         </tr>
       </tbody>
     </table>
